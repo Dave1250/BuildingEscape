@@ -32,7 +32,10 @@ protected:
 private:
 	float Reach = 130.f;
 
+	UPROPERTY()
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+
+	UPROPERTY()
 	UInputComponent* InputComponent = nullptr;
 
 	//Return 1st actor in reach with physics body

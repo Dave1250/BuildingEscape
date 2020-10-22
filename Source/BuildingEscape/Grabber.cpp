@@ -1,9 +1,9 @@
 // Copyright
 
-#include "DrawDebugHelpers.h"
-#include "GameFramework/PlayerController.h"
-#include "Engine/world.h"
 #include "Grabber.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/world.h"
+#include "GameFramework/PlayerController.h"
 
 #define OUT
 
@@ -29,7 +29,7 @@ void UGrabber::BeginPlay()
 void UGrabber::FindPhysicsHandle()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle == nullptr)
+	if (!PhysicsHandle)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Physics handle component not found on %s"), *GetOwner()->GetName());
 	}
@@ -53,10 +53,12 @@ void UGrabber::Grab()
 {
 	FHitResult HitResult = GetFirstPhysicsBodyInReach();
 	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
+	AActor* ActorHit = HitResult.GetActor();
 	// Try and reach any actors with physics body collision channel set
 	// if we hit something then attach the physics handler
-	if (HitResult.GetActor())
+	if (ActorHit)
 	{
+		if (!PhysicsHandle) { return; }
 		PhysicsHandle->GrabComponentAtLocation
 		(
 			ComponentToGrab,
@@ -68,6 +70,7 @@ void UGrabber::Grab()
 
 void UGrabber::Relase()
 {
+	if (!PhysicsHandle) { return; }
 	PhysicsHandle->ReleaseComponent();
 }
 
@@ -78,6 +81,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//if the physics handle is attach
+	if (!PhysicsHandle) { return; }
 	if (PhysicsHandle->GrabbedComponent)
 	{
 		// move the object we are holding
